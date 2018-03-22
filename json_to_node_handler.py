@@ -3,27 +3,13 @@ import node
 import json
 from datetime import datetime, timezone
 
-def parseJSONfile(bucketName):
+def parseJSONfile(bucketName, key):
     #Creates the connection to the bucket
     s3_conn = boto3.resource('s3')
-    bucket = s3_conn.Bucket(bucketName)
-    
-    #finds and retrieves the newest file to parse
-    key = newestFile(bucket)
     logfile = s3_conn.Object(bucketName, key)
     nodeList = getInstances(logfile)
     return nodeList
-    
-#Returns the key of the newest log file by last_modified attribute
-def newestFile(b):
-    mod_date = 0
-    newest = ''
-    for file in b.objects.all():
-       if mod_date == 0 or mod_date < file.last_modified:
-           mod_date = file.last_modified
-           newest = file.key
-    return newest
-        
+
 #Iterates through each node of the JSON file and launches parse methods
 #Will throw an error if newest file is not JSON, otherwise returns a list of nodes
 def getInstances(file):

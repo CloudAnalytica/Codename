@@ -41,26 +41,24 @@ def connectToAuroraDB(hostName, portNum, userName, passWord, dbName, nodeList):
         conn.commit()  
         conn.close()
 
-#Builds the SQL string to insert all of the information to the nodes Table
+#Builds the SQL string to insert all of the information to the nodes table
 def constructNodeInsert(nodeDict, timestamp):
-    insertIntoNodeTable = ('INSERT INTO nodes (nodeName, chefEnv,cloudEnv, dateCreated, platform, ' 
-            + 'platformVersion, platformFamily, upTime, logTime) VALUES (\'' 
-            + nodeDict['nodeName'] + '\', \'' + nodeDict['chefEnv'] + '\', \'' 
-            + nodeDict['cloudEnv'] + '\', \'' + nodeDict['dateCreated'] + '\', \'' 
-            + nodeDict['platform'] + '\', ' + nodeDict['platformVersion'] + ', \'' 
-            + nodeDict['platformFamily'] + '\', \'' + nodeDict['upTime'] + '\', \'' 
-            + timestamp + '\');')
+    insertIntoNodeTable = ('INSERT INTO nodes (nodeName, chefEnv, cloudEnv, dateCreated, platform, '
+            + 'platformVersion, platformFamily, upTime, logTime) VALUES '
+            + '(\'{}\', \'{}\', \'{}\', \'{}\', \'{}\', {}, \'{}\', \'{}\', \'{}\');'.format 
+            (nodeDict['nodeName'], nodeDict['chefEnv'], nodeDict['cloudEnv'], 
+            nodeDict['dateCreated'], nodeDict['platform'], nodeDict['platformVersion'], 
+            nodeDict['platformFamily'], nodeDict['upTime'], str(timestamp)))
     return insertIntoNodeTable
     
 #Builds the SQL string to insert all of the infomration into the network table
 def constructNetworkInsert(networkDict, nodeID):
     insertIntoNetworkTable = ('INSERT INTO network (nodeID, networkInterface, publicIP, privateIP, '
-            + 'netMask, defaultGateway, localHostname, publicHostname, interfaceState) VALUES ('
-            + nodeID + ', \'' + networkDict['interface'] + '\', \''
-            + networkDict['publicIP'] + '\', \'' + networkDict['privateIP'] + '\', \''
-            + networkDict['netMask'] + '\', \'' + networkDict['defaultGateway'] + '\', \''
-            + networkDict['localHostname'] + '\', \'' + networkDict['publicHostname'] + '\', \''
-            + networkDict['state'] + '\');')
+            + 'netMask, defaultGateway, localHostname, publicHostname, interfaceState) VALUES '
+            + '({}, \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\');'.format
+            (nodeID, networkDict['interface'], networkDict['publicIP'], networkDict['privateIP'], 
+            networkDict['netMask'], networkDict['defaultGateway'], networkDict['localHostname'],
+            networkDict['publicHostname'], networkDict['state']))
     return insertIntoNetworkTable
     
 #Builds the base string for the CPU insert string, and loops through each CPU to
@@ -78,10 +76,7 @@ def constructCPUInsert(node, cpuList, nodeID):
     
 #Builds the individual row to add to the multiline sql insert into the CPU table
 def individualCPUInsert(cpuDict, nodeID):
-    insertIntoCPUTable = ('(' + nodeID + ', ' +
-            cpuDict['cores'] + ', \'' +
-            cpuDict['vendor'] + '\', ' + cpuDict['speed'] + ', \'' + 
-            cpuDict['model'] + '\')')
+    insertIntoCPUTable = ('({}, {}, \'{}\', {}, \'{}\')'.format(nodeID, cpuDict['cores'], cpuDict['vendor'], cpuDict['speed'], cpuDict['model']))
     return insertIntoCPUTable
     
 #Builds the base string for the Filesystem insert string, and loops through each
@@ -96,15 +91,13 @@ def constructFileSysInsert(node, fileSysList, nodeID):
             insertFileSysStr = insertFileSysStr + ';'
         else: 
             insertFileSysStr = insertFileSysStr + ', '
-                    
     return insertFileSysStr
     
 #Builds the individual row to add to the multiline sql insert into the filesystem table
 def individualFileSysInsert(fileDict, nodeID):
-    insertIntoFilesystemTable = ('(' + nodeID + ', \'' + fileDict['device'] + '\', \'' +
-            fileDict['mountPoint'] + '\', ' + fileDict['size'] + ', ' + 
-            fileDict['used'] + ', ' + fileDict['available'] + ', \'' + 
-            fileDict['percentUsed'] + '\')')
+    insertIntoFilesystemTable = ('({}, \'{}\', \'{}\', {}, {}, {}, \'{}\')'.format
+            (nodeID, fileDict['device'], fileDict['mountPoint'], fileDict['size'], 
+             fileDict['used'], fileDict['available'], fileDict['percentUsed']))
     return insertIntoFilesystemTable
     
 #Inserts the nodes table string into the database and returns the nodeID to use in other table inserts
